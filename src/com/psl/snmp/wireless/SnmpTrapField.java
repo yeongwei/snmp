@@ -1,6 +1,5 @@
 package com.psl.snmp.wireless;
 
-import java.awt.font.NumericShaper;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.logging.Logger;
@@ -8,6 +7,7 @@ import java.util.logging.Logger;
 import org.snmp4j.PDUv1;
 import org.snmp4j.smi.OID;
 import org.snmp4j.smi.OctetString;
+import org.snmp4j.smi.VariableBinding;
 
 import com.psl.snmp.wireless.knowledge.SeverityKnowledge;
 import com.psl.snmp.wireless.knowledge.TrapKnowledge;
@@ -22,6 +22,7 @@ public class SnmpTrapField {
     OctetString octetString = null;
     
     switch (trapKnw) {
+    
     case ADDITIONAL_TEXT:
       oid = new OID(trapKnw.getOid());
       octetString = new OctetString(value);
@@ -31,7 +32,7 @@ public class SnmpTrapField {
       octetString = new OctetString("9999");
       break;
     case EVENT_TIME:
-      SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-YYYY, HH:mm:ss");
+      SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy, HH:mm:ss");
       Date date = new Date(Long.parseLong(value));
       String newDateTime = sdf.format(date);
       
@@ -80,31 +81,65 @@ public class SnmpTrapField {
       octetString = new OctetString(value);
       break;
     case ALARM_PREDICATE:
+      oid = new OID(trapKnw.getOid());
+      octetString = new OctetString(value);
       break;
     case TREND_INDICATION:
+      oid = new OID(trapKnw.getOid());
+      octetString = new OctetString(value);
       break;
     case ACK:
+      oid = new OID(trapKnw.getOid());
+      octetString = new OctetString("");
       break;
     case ACK_COMMENT:
+      oid = new OID(trapKnw.getOid());
+      octetString = new OctetString("");
       break;
     case ACK_USERNAME:
+      oid = new OID(trapKnw.getOid());
+      octetString = new OctetString("");
       break;
     case HOSTNAME:
+      oid = new OID(trapKnw.getOid());
+      octetString = new OctetString("tnpm");
       break;
     case PORT:
+      oid = new OID(trapKnw.getOid());
+      octetString = new OctetString("8080");
       break;
     case REGION:
+      oid = new OID(trapKnw.getOid());
+      octetString = new OctetString("REGION");
       break;
     case DOMAIN:
+      oid = new OID(trapKnw.getOid());
+      octetString = new OctetString("DOMAIN");
       break;
     case VENDOR:
+      oid = new OID(trapKnw.getOid());
+      octetString = new OctetString("VENDOR");
       break;
     case EMS:
+      oid = new OID(trapKnw.getOid());
+      octetString = new OctetString("EMS");
       break;
     default:  
       oid = null;
       octetString = null;
       break;
+    }
+    
+    if (oid == null || octetString == null) {
+      LOGGER.info(
+          String.format("PDU skipping %s %s.", oid, octetString));
+    } else {
+      VariableBinding variableBinding = new VariableBinding(oid, octetString);
+      pdu.add(variableBinding);
+      LOGGER.finest(
+          String.format(
+              "PUD added %s value %s.", 
+              oid, variableBinding));
     }
   }
 }
