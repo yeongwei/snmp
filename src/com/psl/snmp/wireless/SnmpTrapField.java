@@ -32,8 +32,13 @@ public class SnmpTrapField {
       octetString = new OctetString("9999");
       break;
     case EVENT_TIME:
+      String millisec = value;
+      if (millisec.length() == 10) {
+        LOGGER.finest(String.format("Appending zeros as milliseconds."));
+        millisec += "000";
+      } 
       SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy, HH:mm:ss");
-      Date date = new Date(Long.parseLong(value));
+      Date date = new Date(Long.parseLong(millisec));
       String newDateTime = sdf.format(date);
       
       oid = new OID(trapKnw.getOid());
@@ -138,8 +143,7 @@ public class SnmpTrapField {
       pdu.add(variableBinding);
       LOGGER.finest(
           String.format(
-              "PUD added %s value %s.", 
-              oid, variableBinding));
+              "PUD added %s.", variableBinding));
     }
   }
 }

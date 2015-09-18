@@ -3,10 +3,16 @@ package com.psl.snmp.wireless;
 import java.util.HashMap;
 import java.util.logging.Logger;
 
+import org.snmp4j.CommunityTarget;
 import org.snmp4j.PDU;
 import org.snmp4j.PDUv1;
+import org.snmp4j.Snmp;
+import org.snmp4j.TransportMapping;
 import org.snmp4j.mp.SnmpConstants;
 import org.snmp4j.smi.OID;
+import org.snmp4j.smi.OctetString;
+import org.snmp4j.smi.UdpAddress;
+import org.snmp4j.transport.DefaultUdpTransportMapping;
 import org.snmp4j.util.DefaultPDUFactory;
 
 import com.psl.snmp.wireless.knowledge.CommunityKnowledge;
@@ -49,25 +55,25 @@ public class SnmpTrapForwarder {
       // Set created PDU
       setPdu();
 
-      /*
-       * LOGGER.info("Configured PDU.");
-       * 
-       * // Create Transport TransportMapping<?> transport = new
-       * DefaultUdpTransportMapping(); transport.listen();
-       * LOGGER.info("Created transport layer.");
-       * 
-       * // Create Target CommunityTarget communityTarget = new
-       * CommunityTarget(); communityTarget.setCommunity(new
-       * OctetString(communityString)); communityTarget.setVersion(snmpVersion);
-       * communityTarget.setAddress(new UdpAddress(targetHost + "/" +
-       * trapPort)); communityTarget.setRetries(snmpRetry);
-       * communityTarget.setTimeout(snmpTimeOut);
-       * LOGGER.info("Created SNMP target.");
-       * 
-       * // SNMP Snmp snmp = new Snmp(transport);
-       * LOGGER.info("Created SNMP object."); snmp.send(pdu, communityTarget);
-       * LOGGER.info("Forwarded PDU."); snmp.close();
-       */
+      // Create transport
+      TransportMapping<?> transport = new DefaultUdpTransportMapping();
+      transport.listen();
+      LOGGER.info("Created Transport layer.");
+
+      // Create Community Target
+      CommunityTarget communityTarget = new CommunityTarget();
+      communityTarget.setCommunity(new OctetString(communityString));
+      communityTarget.setVersion(snmpVersion);
+      communityTarget.setAddress(new UdpAddress(targetHost + "/" + trapPort));
+      communityTarget.setRetries(snmpRetry);
+      communityTarget.setTimeout(snmpTimeOut);
+      LOGGER.info("Created Community target.");
+
+      //Create SNMP
+      Snmp snmp = new Snmp(transport);
+      snmp.send(pdu, communityTarget);
+      LOGGER.info(
+          String.format("Sent %s.", pdu));
     } catch (Exception ex) {
       ex.printStackTrace();
     }
